@@ -1,4 +1,4 @@
-use std::f32::consts::{PI, SQRT_2, TAU};
+use std::f32::consts::{FRAC_PI_4, PI, SQRT_2, TAU};
 
 use paper::*;
 
@@ -18,23 +18,21 @@ impl AppState {
 
 impl State for AppState {
     fn draw<'a>(&'a mut self, frame: &mut Frame<'a>) {
-        frame.config.resolution = 0.05;
+        frame.config.resolution = 0.1;
 
-        let shape = Parametric::new(|x| Vec2::new(x.sin(), -x.cos()), 0.0..TAU)
-            .complete()
-            .map(|v| {
-                let f = PI / 4.0;
-
-                if v.y < -f.sin() {
-                    v.y = v.x.abs() - SQRT_2;
-                }
-            })
-            .hole(Circle::new(0.6))
-            .split(
-                |shape| shape.fill([0.1, 0.2, 0.6, 1.0]),
-                |shape| shape.outline(0.1).fill([0.0, 0.0, 0.0, 1.0]),
-            )
-            .combine();
+        let shape = Line::new(
+            (0.0, -FRAC_PI_4.sin() * 2.0),
+            (-FRAC_PI_4.sin(), -FRAC_PI_4.sin()),
+        )
+        .turn(1.0, -PI * 1.5)
+        .forward(0.1)
+        .offset(0.35)
+        .thicken(0.6, false)
+        .split(
+            |s| s.fill([0.1, 0.2, 0.6, 1.0]),
+            |s| s.outline(0.1).fill([0.0, 0.0, 0.0, 1.0]),
+        )
+        .combine(); 
 
         frame.draw_shape(&shape, self.transform.clone(), &self.camera);
     }
